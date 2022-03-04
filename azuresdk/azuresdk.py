@@ -8,6 +8,7 @@ from azure.mgmt.storage import StorageManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 from azure.storage.blob import BlobClient
 from azure.storage.blob import BlobServiceClient
+from azure.keyvault.secrets import SecretClient
 
 credential = AzureCliCredential()
 subscription_id = os.environ["SUBSCRIPTION_ID"]
@@ -15,16 +16,17 @@ resource_client = ResourceManagementClient(credential, subscription_id)
 storage_client = StorageManagementClient(credential, subscription_id)
 network_client = NetworkManagementClient(credential, subscription_id)
 compute_client = ComputeManagementClient(credential, subscription_id)
+client = SecretClient(vault_url="https://mikko-vault.vault.azure.net/", credential = credential)
 
 #DEFINITIONS FOR RESOURCES
 GROUP_NAME = "resourcegrouop"
-STORAGE_ACCOUNT = "storageacc"
+STORAGE_ACCOUNT = "storage"
 BLOB_CONTAINER = "blobcontainer"
 VIRTUAL_NETWORK_NAME = "vnet01"
 SUBNET_NAME = "sn01"
 PREFIX = "10.0.0.0/24"
 VM_NAME = "ls01"
-MY_CONN = "...EndpointSuffix=core.windows.net" #ACCESS KEY FROM STORAGE ACCOUNT
+MY_CONN = "" #ACCESS KEY FROM STORAGE ACCOUNT
 
 def rg_list():
 
@@ -218,6 +220,26 @@ def blob_delete(blobi):
     blob.delete_blob(delete_snapshots=False)
     print(f"file was deleted from {BLOB_CONTAINER}!")
 
+def secret_get(secret_name):
+
+    secret = client.get_secret(secret_name)
+    print(f"Secret value is {secret.value}")
+
+def secret_create(secret_name, secret_value):
+
+    client.set_secret(secret_name, secret_value)
+    retrieved_secret = client.get_secret(secret_name)
+    print(retrieved_secret)
+
+def blob_upload_with_secret(file, blobi, secret_name):
+
+    secret = client.get_secret(secret_name)
+    MY_CONN = secret.value
+    blob = BlobClient.from_connection_string(conn_str=(MY_CONN)
+    , container_name=(BLOB_CONTAINER), blob_name=(blobi))
+    with open(file, "rb") as data:
+        blob.upload_blob(data)
+        print(f"file was uploaded to {BLOB_CONTAINER}!")
 
 
 #DRIVECOMMANDS
@@ -238,6 +260,9 @@ def blob_delete(blobi):
 #vm_list(GROUP_NAME)
 #vm_stop(GROUP_NAME, VM_NAME)
 #vm_start(GROUP_NAME, VM_NAME)
-#blob_upload("testiuppi.txt", "toimiiko2.txt")
-#blob_download("toimiiko.txt")
-#blob_delete("toimiiko.txt")
+#blob_upload("upload.txt", "upload2.txt")
+#blob_download("upload2.txt")
+#blob_delete("upload2.txt")
+#secret_get("salaisuus01")
+#secret_create("salaisuus01", "TosiSalainen1!")
+#blob_upload_with_secret('upload.txt', 'upload2.txt', 'salaisuus01')
