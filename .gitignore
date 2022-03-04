@@ -1,6 +1,6 @@
 __pycache__/
 
-.env
-.venv
-env/
+src/data/database.ini
 venv/
+.venv
+.idea/

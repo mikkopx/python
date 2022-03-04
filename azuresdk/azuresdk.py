@@ -17,9 +17,9 @@ network_client = NetworkManagementClient(credential, subscription_id)
 compute_client = ComputeManagementClient(credential, subscription_id)
 
 #DEFINITIONS FOR RESOURCES
-GROUP_NAME = "mikkotesti-rg"
-STORAGE_ACCOUNT = "mikkotestistorage"
-BLOB_CONTAINER = "testiblobi"
+GROUP_NAME = "resourcegrouop"
+STORAGE_ACCOUNT = "storageacc"
+BLOB_CONTAINER = "blobcontainer"
 VIRTUAL_NETWORK_NAME = "vnet01"
 SUBNET_NAME = "sn01"
 PREFIX = "10.0.0.0/24"
